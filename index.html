@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MobiliarioDirecto · Marketplace Dinámico de Mobiliario Low-Cost</title>
+<style>
+:root {
+  --bg: #f8fafc; --surface: #ffffff; --surface-2: #f1f5f9; --border: #e2e8f0;
+  --text: #0f172a; --muted: #64748b; --primary: #2563eb; --primary-h: #1d4ed8;
+  --accent: #7c3aed; --ok: #10b981; --warn: #f59e0b; --err: #ef4444;
+  --glass: rgba(255,255,255,0.82); --shadow: 0 10px 30px -10px rgba(15,23,42,0.08);
+  --radius: 14px;
+}
+[data-theme="dark"] {
+  --bg: #0b1120; --surface: #1e293b; --surface-2: #0f172a; --border: #334155;
+  --text: #f8fafc; --muted: #94a3b8; --primary: #3b82f6; --primary-h: #60a5fa;
+  --glass: rgba(30,41,59,0.82); --shadow: 0 10px 30px -10px rgba(0,0,0,0.45);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; scroll-behavior: smooth; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  transition: background .25s, color .25s;
+}
+header {
+  position: sticky; top: 0; z-index: 50; background: var(--glass);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--border);
+}
+.nav {
+  max-width: 1140px; margin: auto; padding: .9rem 20px;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.logo {
+  font-weight: 800; font-size: 1.3rem; text-decoration: none;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nav-links { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.nav-links a {
+  color: var(--text); text-decoration: none; font-size: .92rem; font-weight: 600;
+  opacity: .85; transition: opacity .2s, color .2s;
+}
+.nav-links a:hover { opacity: 1; color: var(--primary); }
+.nav-actions { display: flex; gap: 8px; align-items: center; }
+.icon-btn {
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+  padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 6px; font-size: .88rem; transition: .2s;
+}
+.icon-btn:hover { border-color: var(--primary); transform: translateY(-1px); }
+.badge-count {
+  background: var(--primary); color: #fff; font-size: .75rem;
+  padding: 1px 7px; border-radius: 99px; font-weight: 700;
+}
+
+/* Hero */
+.hero {
+  position: relative; overflow: hidden; padding: 65px 20px 55px; text-align: center;
+  background: radial-gradient(circle at 20% 20%, rgba(37,99,235,.15), transparent 45%),
+              radial-gradient(circle at 80% 80%, rgba(124,58,237,.15), transparent 45%);
+  border-bottom: 1px solid var(--border);
+}
+.hero-badge {
+  display: inline-block; background: var(--surface); border: 1px solid var(--border);
+  padding: 5px 14px; border-radius: 99px; font-size: .82rem; font-weight: 600;
+  color: var(--primary); margin-bottom: 16px; box-shadow: var(--shadow);
+}
+.hero h1 { font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 800; letter-spacing: -.02em; margin-bottom: 12px; }
+.hero p { color: var(--muted); max-width: 620px; margin: 0 auto 28px; font-size: 1.05rem; }
+.hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn {
+  background: var(--primary); color: #fff; border: none; padding: 11px 22px;
+  border-radius: 10px; font-weight: 700; cursor: pointer; font-size: .95rem;
+  text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform .15s, background .2s;
+}
+.btn:hover { background: var(--primary-h); transform: translateY(-1px); }
+.btn.sec { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn.sec:hover { border-color: var(--primary); }
+.stats-grid {
+  max-width: 850px; margin: 40px auto 0; display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); padding: 16px;
+  border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.stat-card b { font-size: 1.65rem; display: block; color: var(--primary); }
+.stat-card span { font-size: .82rem; color: var(--muted); }
+
+/* Layout */
+section { max-width: 1140px; margin: auto; padding: 55px 20px; }
+.sec-head { text-align: center; margin-bottom: 32px; }
+.sec-head h2 { font-size: 1.9rem; font-weight: 800; margin-bottom: 6px; }
+.sec-head p { color: var(--muted); }
+
+/* Filters & Pills */
+.filter-bar {
+  background: var(--surface); border: 1px solid var(--border); padding: 18px;
+  border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill {
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+  padding: 6px 14px; border-radius: 99px; font-size: .85rem; font-weight: 600;
+  cursor: pointer; transition: .2s;
+}
+.pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.controls {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr; gap: 12px; align-items: center;
+}
+@media(max-width: 820px) { .controls { grid-template-columns: 1fr 1fr; } }
+@media(max-width: 520px) { .controls { grid-template-columns: 1fr; } }
+input, select, textarea {
+  width: 100%; padding: 10px 12px; background: var(--surface-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 10px; font-size: .95rem; font-family: inherit;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+.range-wrap { display: flex; flex-direction: column; gap: 4px; font-size: .82rem; color: var(--muted); }
+.range-wrap input { padding: 0; accent-color: var(--primary); }
+
+/* Product Grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(265px, 1fr)); gap: 20px; }
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; display: flex; flex-direction: column; justify-content: space-between;
+  gap: 14px; box-shadow: var(--shadow); transition: transform .2s, border-color .2s; position: relative;
+}
+.card:hover { transform: translateY(-4px); border-color: var(--primary); }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.emoji-box {
+  font-size: 2.3rem; width: 58px; height: 58px; display: flex; align-items: center;
+  justify-content: center; background: var(--surface-2); border-radius: 12px;
+}
+.fav-btn {
+  background: transparent; border: none; font-size: 1.25rem; cursor: pointer;
+  line-height: 1; transition: transform .15s;
+}
+.fav-btn:hover { transform: scale(1.2); }
+.badges { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.tag {
+  font-size: .74rem; font-weight: 700; padding: 3px 9px; border-radius: 99px;
+  background: rgba(37,99,235,.12); color: var(--primary);
+}
+.tag.ok { background: rgba(16,185,129,.15); color: var(--ok); }
+.tag.warn { background: rgba(245,158,11,.16); color: var(--warn); }
+.tag.save { background: rgba(124,58,237,.15); color: var(--accent); }
+.card h3 { font-size: 1.08rem; cursor: pointer; }
+.card h3:hover { color: var(--primary); }
+.meta { font-size: .84rem; color: var(--muted); }
+.stock-bar { height: 5px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+.stock-fill { height: 100%; background: var(--ok); transition: width .3s; }
+.stock-fill.low { background: var(--warn); }
+.price-row { display: flex; align-items: baseline; gap: 8px; }
+.price { font-size: 1.45rem; font-weight: 800; }
+.old-price { font-size: .9rem; color: var(--muted); text-decoration: line-through; }
+.card-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 8px; }
+
+/* Appraiser & Panels */
+.split { display: grid; grid-template-columns: 1.1fr .9fr; gap: 24px; align-items: start; }
+@media(max-width: 820px) { .split { grid-template-columns: 1fr; } }
+.panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 26px; box-shadow: var(--shadow);
+}
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media(max-width: 560px) { .row { grid-template-columns: 1fr; } }
+label { font-size: .85rem; font-weight: 600; display: flex; flex-direction: column; gap: 5px; }
+.lot-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; max-height: 220px; overflow-y: auto; }
+.lot-item {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface-2); padding: 9px 12px; border-radius: 8px; font-size: .88rem;
+}
+.lot-item button { background: none; border: none; color: var(--err); cursor: pointer; font-weight: 700; }
+.est-box {
+  background: linear-gradient(135deg, rgba(37,99,235,.1), rgba(124,58,237,.1));
+  border: 1px solid var(--primary); border-radius: 12px; padding: 16px; text-align: center; margin: 14px 0;
+}
+.est-box b { font-size: 1.7rem; color: var(--primary); display: block; }
+
+/* Drawer & Modal */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(3px);
+  z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  max-width: 520px; width: 100%; padding: 26px; position: relative; box-shadow: var(--shadow);
+}
+.drawer {
+  position: fixed; top: 0; right: -420px; width: 100%; max-width: 390px; height: 100vh;
+  background: var(--surface); border-left: 1px solid var(--border); z-index: 110;
+  padding: 24px; display: flex; flex-direction: column; justify-content: space-between;
+  transition: right .3s ease; box-shadow: var(--shadow);
+}
+.drawer.open { right: 0; }
+.close-btn { background: none; border: none; font-size: 1.3rem; color: var(--muted); cursor: pointer; }
+
+/* FAQ & Toast */
+details {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 18px; margin-bottom: 10px;
+}
+summary { font-weight: 700; cursor: pointer; }
+details p { color: var(--muted); margin-top: 8px; font-size: .92rem; }
+.toast {
+  position: fixed; bottom: 22px; right: 22px; z-index: 200;
+  background: var(--text); color: var(--bg); padding: 12px 18px;
+  border-radius: 10px; font-weight: 600; font-size: .9rem;
+  box-shadow: var(--shadow); transform: translateY(120%); transition: transform .25s;
+}
+.toast.show { transform: translateY(0); }
+footer {
+  text-align: center; padding: 30px 20px; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .88rem; background: var(--surface);
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+// 📦 BASE DE DATOS CENTRAL (Modifica aquí productos, precios base y FAQs; toda la web se adapta sola)
+const DB = {
+  brand: "MobiliarioDirecto",
+  web3Key: "a930a3b7-9ac0-4158-a681-6d89ae882949",
+  nav: [
+    { id: "catalogo", label: "Catálogo" },
+    { id: "vender", label: "Tasador / Vender" },
+    { id: "contacto", label: "Solicitar / Contacto" },
+    { id: "faq", label: "FAQ" }
+  ],
+  products: [
+    { id: 1, n: "Lámpara de escritorio LED articulada", c: "Iluminación", p: 12, pvp: 29, e: "Como nuevo", s: 6, dim: "45x15 cm", i: "💡", d: "Luz regulable en 3 temperaturas, bajo consumo y brazo metálico flexible." },
+    { id: 2, n: "Lámpara de pie salón minimalista", c: "Iluminación", p: 25, pvp: 55, e: "Buen estado", s: 3, dim: "165x28 cm", i: "🪔", d: "Interruptor de pie, pantalla cálida e ideal para lectura o rincón de sofá." },
+    { id: 3, n: "Pack 3 focos LED empotrables", c: "Iluminación", p: 10, pvp: 24, e: "Nuevo", s: 10, dim: "9 cm Ø", i: "🔆", d: "Caja sin abrir. Luz neutra 4000K de alta eficiencia energética." },
+    { id: 4, n: "Mesa de centro de madera maciza", c: "Mesas", p: 35, pvp: 85, e: "Buen estado", s: 2, dim: "100x55x42 cm", i: "🪵", d: "Estructura robusta con balda inferior para revistas o mandos." },
+    { id: 5, n: "Escritorio de trabajo 120 cm", c: "Mesas", p: 55, pvp: 120, e: "Como nuevo", s: 4, dim: "120x60x75 cm", i: "🖥️", d: "Tablero resistente a arañazos y patas de acero con niveladores." },
+    { id: 6, n: "Mesa de comedor extensible (6 pax)", c: "Mesas", p: 90, pvp: 210, e: "Usado", s: 1, dim: "140/180x85 cm", i: "🍽️", d: "Apertura central rápida. Perfecta para pisos o comedores familiares." },
+    { id: 7, n: "Silla de oficina ergonómica malla", c: "Sillas", p: 40, pvp: 95, e: "Buen estado", s: 8, dim: "60x60x98 cm", i: "🪑", d: "Soporte lumbar adaptable, reposabrazos y pistón de gas revisado." },
+    { id: 8, n: "Taburete alto barra / cocina", c: "Sillas", p: 15, pvp: 38, e: "Como nuevo", s: 5, dim: "38x38x72 cm", i: "🪑", d: "Reposapiés metálico y asiento acolchado fácil de limpiar." },
+    { id: 9, n: "Lote 4 sillas comedor nórdicas", c: "Sillas", p: 60, pvp: 140, e: "Usado", s: 2, dim: "46x50x82 cm", i: "🪑", d: "Patas de madera de haya con topes antideslizantes." }
+  ],
+  appraisalBase: { "Iluminación": 8, "Mesas": 25, "Sillas": 14, "Almacenaje": 18, "Otros": 10 },
+  conditions: [
+    { label: "Como nuevo", mult: 1 },
+    { label: "Buen estado", mult: 0.72 },
+    { label: "Usado funcional", mult: 0.48 },
+    { label: "Con desperfectos", mult: 0.22 }
+  ],
+  faqs: [
+    { q: "¿Cómo funciona la compra por lote?", a: "Puedes añadir varios artículos a tu cesta. Si sumas 3 o más unidades aplicamos un 5% de descuento automático; con 5 o más unidades, un 10%." },
+    { q: "¿Cómo y cuándo se realiza el pago?", a: "No cobramos por adelantado en la web. Revisamos tu solicitud en menos de 24 h y acordamos entrega y pago en mano, Bizum o transferencia al recibir." },
+    { q: "¿Compráis mobiliario a particulares y empresas?", a: "Sí, desde una sola lámpara hasta vaciados de oficina. Usa el tasador multi-artículo para calcular una oferta orientativa al instante." },
+    { q: "¿Realizáis envíos o recogidas a domicilio?", a: "Sí, operamos con entrega en persona y rutas económicas según volumen y código postal." }
+  ]
+};
+
+// 🧠 ESTADO REACTIVO DE LA APLICACIÓN
+const STATE = {
+  q: "", cat: "", cond: "", sort: "default", maxPrice: Math.max(...DB.products.map(p => p.p)), onlyFavs: false,
+  cart: JSON.parse(localStorage.getItem("md_cart") || "[]"),
+  favs: JSON.parse(localStorage.getItem("md_favs") || "[]"),
+  sellLot: [],
+  theme: localStorage.getItem("md_theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+};
+
+const $ = id => document.getElementById(id);
+const notify = msg => {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove("show"), 2800);
+};
+
+// Inicializar estructura base desde JS
+function initApp() {
+  document.documentElement.setAttribute("data-theme", STATE.theme);
+  const cats = [...new Set(DB.products.map(x => x.c))];
+  const maxP = Math.max(...DB.products.map(x => x.p));
+  const totalStock = DB.products.reduce((a, b) => a + b.s, 0);
+  const minP = Math.min(...DB.products.map(x => x.p));
+  const avgSave = Math.round(DB.products.reduce((a, b) => a + (1 - b.p / b.pvp), 0) / DB.products.length * 100);
+
+  $("app").innerHTML = `
+    <header><div class="nav">
+      <a href="#" class="logo">⚡ ${DB.brand}</a>
+      <nav class="nav-links">${DB.nav.map(n => `<a href="#${n.id}">${n.label}</a>`).join("")}</nav>
+      <div class="nav-actions">
+        <button class="icon-btn" id="btn-fav-filter" title="Ver favoritos">♥ <span class="badge-count" id="fav-count">0</span></button>
+        <button class="icon-btn" id="btn-drawer">🛒 Mi Lote <span class="badge-count" id="cart-count">0</span></button>
+        <button class="icon-btn" id="btn-theme" title="Cambiar tema">${STATE.theme === "dark" ? "☀️" : "🌙"}</button>
+      </div>
+    </div></header>
+
+    <div class="hero">
+      <span class="hero-badge">♻️ Economía circular · Mobiliario verificado</span>
+      <h1>Compra y vende mobiliario low-cost al instante</h1>
+      <p>Lámparas, mesas, sillas y equipamiento revisado con hasta un ${avgSave}% de ahorro medio o tasación inmediata para tus muebles.</p>
+      <div class="hero-cta">
+        <a href="#catalogo" class="btn">Explorar catálogo</a>
+        <a href="#vender" class="btn sec">Tasar mis muebles</a>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><b>${totalStock} uds.</b><span>Stock disponible hoy</span></div>
+        <div class="stat-card"><b>Desde ${minP} €</b><span>Precios de liquidación</span></div>
+        <div class="stat-card"><b>-${avgSave}%</b><span>Ahorro medio vs. nuevo</span></div>
+        <div class="stat-card"><b>&lt; 24 h</b><span>Respuesta garantizada</span></div>
+      </div>
+    </div>
+
+    <section id="catalogo">
+      <div class="sec-head">
+        <h2>Catálogo en tiempo real</h2>
+        <p>Filtra, compara el ahorro y añade uno o varios artículos a tu solicitud.</p>
+      </div>
+      <div class="filter-bar">
+        <div class="pills" id="cat-pills"></div>
+        <div class="controls">
+          <input id="f-q" type="search" placeholder="🔍 Buscar por nombre, medidas o descripción...">
+          <select id="f-cond">
+            <option value="">Cualquier estado</option>
+            ${[...new Set(DB.products.map(p => p.e))].map(e => `<option value="${e}">${e}</option>`).join("")}
+          </select>
+          <select id="f-sort">
+            <option value="default">Ordenar: Destacados</option>
+            <option value="asc">Precio: menor a mayor</option>
+            <option value="desc">Precio: mayor a menor</option>
+            <option value="save">Mayor % de descuento</option>
+            <option value="stock">Mayor stock</option>
+          </select>
+          <div class="range-wrap">
+            <span>Precio máx: <b id="price-lbl">${maxP} €</b></span>
+            <input id="f-price" type="range" min="${minP}" max="${maxP}" value="${maxP}">
+          </div>
+        </div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section id="vender">
+      <div class="sec-head">
+        <h2>Tasador interactivo de compra</h2>
+        <p>Añade todos los muebles que quieras vender para calcular una oferta conjunta con bonificación por lote.</p>
+      </div>
+      <div class="split">
+        <div class="panel">
+          <div class="row">
+            <label>Categoría<select id="c-cat">${Object.keys(DB.appraisalBase).map(c => `<option value="${c}">${c}</option>`).join("")}</select></label>
+            <label>Estado<select id="c-est">${DB.conditions.map((c, i) => `<option value="${c.mult}" ${i===1?"selected":""}>${c.label}</option>`).join("")}</select></label>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <label>Descripción / Modelo (opcional)<input id="c-desc" placeholder="Ej: Mesa IKEA blanca"></label>
+            <label>Unidades<input id="c-cant" type="number" min="1" value="1"></label>
+          </div>
+          <button type="button" class="btn sec" id="c-add" style="width:100%;margin-top:14px">➕ Añadir a mi lote de venta</button>
+          <div class="lot-list" id="sell-list"></div>
+        </div>
+        <div class="panel">
+          <h3>Resumen de tasación</h3>
+          <p class="meta">Si vendes 3 o más piezas aplicamos un +10% extra en la valoración.</p>
+          <div class="est-box">
+            <span>Oferta orientativa total</span>
+            <b id="c-res">0 € – 0 €</b>
+            <small id="c-bonus" class="meta"></small>
+          </div>
+          <button type="button" class="btn" id="c-use" style="width:100%">Vender este lote en el formulario</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="contacto">
+      <div class="sec-head">
+        <h2>Finalizar solicitud</h2>
+        <p>Recibimos tu propuesta directamente en nuestro correo y te contestamos en menos de 24 horas.</p>
+      </div>
+      <div class="panel" style="max-width:680px;margin:auto">
+        <form id="form" action="https://api.web3forms.com/submit" method="POST" style="display:flex;flex-direction:column;gap:14px">
+          <input type="hidden" name="access_key" value="${DB.web3Key}">
+          <input type="hidden" name="subject" id="f-subject" value="Nueva solicitud desde MobiliarioDirecto">
+          <input type="hidden" name="from_name" value="${DB.brand}">
+          <input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off">
+
+          <div class="row">
+            <label>Tipo de operación<select id="operacion" name="Operacion" required>
+              <option value="Quiero comprar artículos">Quiero comprar artículos</option>
+              <option value="Quiero vender mobiliario">Quiero vender mobiliario</option>
+              <option value="Consulta general">Otra consulta</option>
+            </select></label>
+            <label>Perfil<select name="Perfil"><option>Particular</option><option>Empresa / Autónomo</option></select></label>
+          </div>
+
+          <label>Artículos seleccionados / Propuesta<input id="articulo" name="Articulo_Resumen" placeholder="Selecciona del catálogo, usa el tasador o escribe aquí..." required></label>
+          <div class="row">
+            <label>Unidades totales<input id="cantidad" name="Cantidad_Total" type="number" min="1" value="1"></label>
+            <label>Importe total orientativo (€)<input id="precio" name="Importe_Orientativo_EUR" type="number" min="0" step="1" placeholder="Opcional"></label>
+          </div>
+          <div class="row">
+            <label>Tu nombre<input name="Nombre" id="inp-nombre" placeholder="Nombre completo" required></label>
+            <label>Ciudad / Código Postal<input name="Ubicacion" id="inp-ciudad" placeholder="Ej: Madrid (28012)" required></label>
+          </div>
+          <div class="row">
+            <label>Correo electrónico<input name="email" id="inp-email" type="email" placeholder="tu@correo.com" required></label>
+            <label>Teléfono / WhatsApp<input name="Telefono" id="inp-tel" type="tel" placeholder="600 000 000" required></label>
+          </div>
+          <div class="row">
+            <label>Logística preferida<select name="Logistica"><option>Recogida en persona</option><option>Envío / Recogida a domicilio</option><option>A convenir</option></select></label>
+            <label>Vía de respuesta preferida<select name="Via_Contacto"><option>WhatsApp</option><option>Correo electrónico</option><option>Llamada telefónica</option></select></label>
+          </div>
+          <label>Detalles adicionales o desglose<textarea id="mensaje" name="Mensaje" rows="4" placeholder="Medidas, dudas, disponibilidad horaria..." required></textarea></label>
+          <button class="btn" id="send" type="submit">🚀 Enviar solicitud ahora</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="sec-head"><h2>Preguntas frecuentes</h2></div>
+      <div style="max-width:740px;margin:auto">
+        ${DB.faqs.map(f => `<details><summary>${f.q}</summary><p>${f.a}</p></details>`).join("")}
+      </div>
+    </section>
+
+    <footer><p>© ${new Date().getFullYear()} ${DB.brand} · Plataforma dinámica de compra y venta de mobiliario</p></footer>
+
+    <!-- Modal de Vista Rápida -->
+    <div class="overlay" id="modal-overlay">
+      <div class="modal" id="modal-content"></div>
+    </div>
+
+    <!-- Drawer del Lote / Carrito -->
+    <div class="drawer" id="drawer">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+          <h3>🛒 Tu Lote de Compra</h3>
+          <button class="close-btn" id="close-drawer">✕</button>
+        </div>
+        <div id="cart-items" class="lot-list" style="max-height:55vh"></div>
+      </div>
+      <div>
+        <div id="cart-summary" style="margin-bottom:14px;font-size:.92rem"></div>
+        <button class="btn" id="checkout-btn" style="width:100%">Volcar lote al formulario</button>
+      </div>
+    </div>
+  `;
+}
+
+// Renderizar píldoras de categorías con contadores dinámicos
+function renderPills() {
+  const counts = DB.products.reduce((acc, p) => (acc[p.c] = (acc[p.c] || 0) + 1, acc), {});
+  const cats = ["", ...Object.keys(counts)];
+  $("cat-pills").innerHTML = cats.map(c => {
+    const active = STATE.cat === c && !STATE.onlyFavs ? "active" : "";
+    const label = c ? `${c} (${counts[c]})` : `Todos (${DB.products.length})`;
+    return `<button class="pill ${active}" data-cat="${c}">${label}</button>`;
+  }).join("");
+}
+
+// Renderizar catálogo filtrado
+function renderCatalog() {
+  let list = DB.products.filter(p => {
+    if (STATE.onlyFavs && !STATE.favs.includes(p.id)) return false;
+    if (STATE.cat && p.c !== STATE.cat) return false;
+    if (STATE.cond && p.e !== STATE.cond) return false;
+    if (p.p > STATE.maxPrice) return false;
+    if (STATE.q && !(p.n + p.c + p.d + p.dim).toLowerCase().includes(STATE.q)) return false;
+    return true;
+  });
+
+  if (STATE.sort === "asc") list.sort((a, b) => a.p - b.p);
+  if (STATE.sort === "desc") list.sort((a, b) => b.p - a.p);
+  if (STATE.sort === "stock") list.sort((a, b) => b.s - a.s);
+  if (STATE.sort === "save") list.sort((a, b) => (1 - b.p / b.pvp) - (1 - a.p / a.pvp));
+
+  $("fav-count").textContent = STATE.favs.length;
+
+  if (!list.length) {
+    $("grid").innerHTML = `<div class="panel" style="grid-column:1/-1;text-align:center;color:var(--muted)">No hay artículos que coincidan con esos filtros.</div>`;
+    return;
+  }
+
+  $("grid").innerHTML = list.map(p => {
+    const savePct = Math.round((1 - p.p / p.pvp) * 100);
+    const isFav = STATE.favs.includes(p.id);
+    const pctStock = Math.min(100, p.s * 10);
+    return `
+      <div class="card">
+        <div>
+          <div class="card-top">
+            <div class="emoji-box">${p.i}</div>
+            <button class="fav-btn" data-fav="${p.id}" title="Guardar en favoritos">${isFav ? "❤️" : "🤍"}</button>
+          </div>
+          <div class="badges">
+            <span class="tag">${p.c}</span>
+            <span class="tag save">-${savePct}%</span>
+            <span class="tag ${p.s <= 2 ? "warn" : "ok"}">${p.s <= 2 ? `¡Últimas ${p.s}!` : `${p.s} uds.`}</span>
+          </div>
+          <h3 data-view="${p.id}">${p.n}</h3>
+          <p class="meta">${p.e} · 📏 ${p.dim}</p>
+          <div class="stock-bar"><div class="stock-fill ${p.s <= 2 ? "low" : ""}" style="width:${pctStock}%"></div></div>
+        </div>
+        <div>
+          <div class="price-row">
+            <span class="price">${p.p} €</span>
+            <span class="old-price">${p.pvp} €</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn" data-add="${p.id}">+ Añadir al lote</button>
+            <button class="btn sec" data-view="${p.id}" title="Ver ficha">👁️</button>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+// Gestión del Carrito / Lote
+function saveCart() {
+  localStorage.setItem("md_cart", JSON.stringify(STATE.cart));
+  renderCart();
+}
+function addToCart(id) {
+  const prod = DB.products.find(p => p.id === id);
+  const item = STATE.cart.find(x => x.id === id);
+  if (item) {
+    if (item.qty < prod.s) item.qty++;
+    else return notify("⚠️ Alcanzaste el stock máximo disponible");
+  } else {
+    STATE.cart.push({ id, qty: 1 });
+  }
+  saveCart();
+  notify(`✅ "${prod.n}" añadido a tu lote`);
+}
+function renderCart() {
+  const totalQty = STATE.cart.reduce((a, b) => a + b.qty, 0);
+  $("cart-count").textContent = totalQty;
+  if (!STATE.cart.length) {
+    $("cart-items").innerHTML = `<p class="meta">Tu lote está vacío. Añade muebles del catálogo para agrupar tu pedido.</p>`;
+    $("cart-summary").innerHTML = "";
+    return;
+  }
+  let sub = 0;
+  $("cart-items").innerHTML = STATE.cart.map(item => {
+    const p = DB.products.find(x => x.id === item.id);
+    sub += p.p * item.qty;
+    return `<div class="lot-item">
+      <div><b>${item.qty}x</b> ${p.n}<br><small class="meta">${p.p * item.qty} €</small></div>
+      <button data-rm="${p.id}">✕</button>
+    </div>`;
+  }).join("");
+  const disc = totalQty >= 5 ? 0.10 : totalQty >= 3 ? 0.05 : 0;
+  const finalP = Math.round(sub * (1 - disc));
+  $("cart-summary").innerHTML = `
+    <div style="display:flex;justify-content:space-between"><span>Subtotal (${totalQty} uds.):</span><b>${sub} €</b></div>
+    ${disc ? `<div style="display:flex;justify-content:space-between;color:var(--ok)"><span>Descuento por lote (-${disc*100}%):</span><b>-${sub - finalP} €</b></div>` : `<small class="meta">Añade 3+ unidades para un 5% dto. o 5+ para un 10%.</small>`}
+    <div style="display:flex;justify-content:space-between;font-size:1.15rem;margin-top:6px;border-top:1px solid var(--border);padding-top:6px"><span>Total estimado:</span><b>${finalP} €</b></div>
+  `;
+}
+
+// Tasador Multi-Artículo
+function renderSellLot() {
+  if (!STATE.sellLot.length) {
+    const base = DB.appraisalBase[$("c-cat").value] || 10;
+    const mult = parseFloat($("c-est").value);
+    const qty = Math.max(1, +$("c-cant").value || 1);
+    const est = Math.round(base * mult * qty);
+    $("sell-list").innerHTML = `<p class="meta">Puedes pulsar "Añadir a mi lote de venta" para acumular varios muebles distintos.</p>`;
+    $("c-res").textContent = `${Math.round(est * 0.85)} € – ${Math.round(est * 1.15)} €`;
+    $("c-bonus").textContent = "Estimación individual";
+    return;
+  }
+  let total = 0, count = 0;
+  $("sell-list").innerHTML = STATE.sellLot.map((it, idx) => {
+    total += it.val; count += it.qty;
+    return `<div class="lot-item">
+      <span><b>${it.qty}x</b> ${it.cat} (${it.desc}) · ${it.cond}</span>
+      <button data-srm="${idx}">✕</button>
+    </div>`;
+  }).join("");
+  const bonus = count >= 3 ? 1.10 : 1;
+  const finalVal = Math.round(total * bonus);
+  $("c-res").textContent = `${Math.round(finalVal * 0.85)} € – ${Math.round(finalVal * 1.15)} €`;
+  $("c-bonus").textContent = count >= 3 ? "🔥 ¡Incluye +10% de bonificación por lote!" : `Lote de ${count} ud(s).`;
+}
+
+// Iniciar y enlazar eventos
+initApp();
+renderPills();
+renderCatalog();
+renderCart();
+renderSellLot();
+
+// Eventos delegados y controles
+document.addEventListener("click", e => {
+  const pill = e.target.closest(".pill");
+  if (pill) { STATE.onlyFavs = false; STATE.cat = pill.dataset.cat; renderPills(); renderCatalog(); }
+
+  const fav = e.target.closest("[data-fav]");
+  if (fav) {
+    const id = +fav.dataset.fav;
+    STATE.favs = STATE.favs.includes(id) ? STATE.favs.filter(x => x !== id) : [...STATE.favs, id];
+    localStorage.setItem("md_favs", JSON.stringify(STATE.favs));
+    renderCatalog();
+  }
+
+  const add = e.target.closest("[data-add]");
+  if (add) addToCart(+add.dataset.add);
+
+  const rm = e.target.closest("[data-rm]");
+  if (rm) { STATE.cart = STATE.cart.filter(x => x.id !== +rm.dataset.rm); saveCart(); }
+
+  const srm = e.target.closest("[data-srm]");
+  if (srm) { STATE.sellLot.splice(+srm.dataset.srm, 1); renderSellLot(); }
+
+  const view = e.target.closest("[data-view]");
+  if (view) {
+    const p = DB.products.find(x => x.id === +view.dataset.view);
+    $("modal-content").innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span class="tag">${p.c} · ${p.e}</span>
+        <button class="close-btn" id="close-modal">✕</button>
+      </div>
+      <h2>${p.i} ${p.n}</h2>
+      <p style="margin:10px 0;color:var(--muted)">${p.d}</p>
+      <p class="meta">📏 Medidas: <b>${p.dim}</b> · 📦 Stock: <b>${p.s} unidades</b></p>
+      <div class="price-row" style="margin:16px 0">
+        <span class="price">${p.p} €</span><span class="old-price">${p.pvp} € nuevo</span>
+      </div>
+      <button class="btn" style="width:100%" onclick="addToCart(${p.id});$('modal-overlay').classList.remove('open')">🛒 Añadir al lote de solicitud</button>
+    `;
+    $("modal-overlay").classList.add("open");
+  }
+  if (e.target.id === "modal-overlay" || e.target.id === "close-modal") $("modal-overlay").classList.remove("open");
+});
+
+$("btn-theme").onclick = () => {
+  STATE.theme = STATE.theme === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", STATE.theme);
+  localStorage.setItem("md_theme", STATE.theme);
+  $("btn-theme").textContent = STATE.theme === "dark" ? "☀️" : "🌙";
+};
+$("btn-fav-filter").onclick = () => {
+  STATE.onlyFavs = !STATE.onlyFavs;
+  notify(STATE.onlyFavs ? "❤️ Mostrando solo tus favoritos" : "Mostrando todo el catálogo");
+  renderPills(); renderCatalog();
+};
+$("btn-drawer").onclick = () => $("drawer").classList.add("open");
+$("close-drawer").onclick = () => $("drawer").classList.remove("open");
+
+["f-q", "f-cond", "f-sort", "f-price"].forEach(id => {
+  $(id).addEventListener("input", () => {
+    STATE.q = $("f-q").value.toLowerCase().trim();
+    STATE.cond = $("f-cond").value;
+    STATE.sort = $("f-sort").value;
+    STATE.maxPrice = +$("f-price").value;
+    $("price-lbl").textContent = STATE.maxPrice + " €";
+    renderCatalog();
+  });
+});
+
+["c-cat", "c-est", "c-cant"].forEach(id => $(id).addEventListener("input", renderSellLot));
+$("c-add").onclick = () => {
+  const cat = $("c-cat").value;
+  const cond = $("c-est").selectedOptions[0].text;
+  const mult = parseFloat($("c-est").value);
+  const qty = Math.max(1, +$("c-cant").value || 1);
+  const desc = $("c-desc").value.trim() || "Estándar";
+  STATE.sellLot.push({ cat, cond, qty, desc, val: Math.round(DB.appraisalBase[cat] * mult * qty) });
+  $("c-desc").value = ""; $("c-cant").value = 1;
+  renderSellLot();
+  notify("➕ Añadido al lote de tasación");
+};
+
+$("c-use").onclick = () => {
+  $("operacion").value = "Quiero vender mobiliario";
+  if (STATE.sellLot.length) {
+    const qty = STATE.sellLot.reduce((a, b) => a + b.qty, 0);
+    const total = Math.round(STATE.sellLot.reduce((a, b) => a + b.val, 0) * (qty >= 3 ? 1.1 : 1));
+    $("articulo").value = `Lote de venta (${qty} piezas)`;
+    $("cantidad").value = qty;
+    $("precio").value = total;
+    $("mensaje").value = "Desglose para vender:\n" + STATE.sellLot.map(x => `- ${x.qty}x ${x.cat} (${x.desc}) [${x.cond}]`).join("\n");
+  } else {
+    const cat = $("c-cat").value, cond = $("c-est").selectedOptions[0].text, qty = +$("c-cant").value || 1;
+    $("articulo").value = `${cat} (${cond})`;
+    $("cantidad").value = qty;
+    $("precio").value = Math.round(DB.appraisalBase[cat] * parseFloat($("c-est").value) * qty);
+  }
+  $("contacto").scrollIntoView();
+};
+
+$("checkout-btn").onclick = () => {
+  if (!STATE.cart.length) return notify("⚠️ Añade primero algún artículo al lote");
+  const totalQty = STATE.cart.reduce((a, b) => a + b.qty, 0);
+  const sub = STATE.cart.reduce((a, b) => a + DB.products.find(p => p.id === b.id).p * b.qty, 0);
+  const disc = totalQty >= 5 ? 0.10 : totalQty >= 3 ? 0.05 : 0;
+  $("operacion").value = "Quiero comprar artículos";
+  $("articulo").value = STATE.cart.map(i => `${i.qty}x ${DB.products.find(p => p.id === i.id).n}`).join(" + ");
+  $("cantidad").value = totalQty;
+  $("precio").value = Math.round(sub * (1 - disc));
+  $("mensaje").value = "Solicito disponibilidad para el siguiente lote:\n" +
+    STATE.cart.map(i => { const p = DB.products.find(x => x.id === i.id); return `- ${i.qty}x ${p.n} (${p.p * i.qty} €)`; }).join("\n");
+  $("drawer").classList.remove("open");
+  $("contacto").scrollIntoView();
+  notify("📋 Lote volcado al formulario");
+};
+
+// Envío asíncrono a Web3Forms
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("send");
+  btn.disabled = true; btn.textContent = "⏳ Enviando solicitud...";
+  $("f-subject").value = `${$("operacion").value}: ${$("articulo").value}`;
+  try {
+    const r = await fetch(e.target.action, { method: "POST", headers: { Accept: "application/json" }, body: new FormData(e.target) });
+    const d = await r.json();
+    if (d.success) {
+      notify("✅ ¡Solicitud enviada! Te responderemos en menos de 24 h.");
+      STATE.cart = []; saveCart(); e.target.reset();
+    } else throw new Error();
+  } catch (_) {
+    notify("❌ Error de conexión. Inténtalo de nuevo en unos segundos.");
+  }
+  btn.disabled = false; btn.textContent = "🚀 Enviar solicitud ahora";
+});
+</script>
+</body>
+</html>
